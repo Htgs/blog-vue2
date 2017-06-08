@@ -26,6 +26,7 @@ module.exports = {
     "indent": [1, "tab"],
     "no-tabs": "off",
     "no-undef": 0,
-    "no-unused-vars": 0
+    "no-unused-vars": 0,
+    'no-eval': 0
   }
 }

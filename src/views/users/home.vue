@@ -4,9 +4,14 @@
 			<el-col :span="10" :offset="1">
 				<div>blog</div>
 			</el-col>
-			<el-col :span="6" :offset="4" class="form">
+			<el-col v-if="global_user" :span="6" :offset="4" class="form">
 				<h3 class="txt-c">
-					用户登录
+					{{global_user.name}}
+				</h3>
+			</el-col>
+			<el-col v-else :span="6" :offset="4" class="form">
+				<h3 class="txt-c">
+					{{currentView === 'Login' ? '用户登录' : '用户注册' }}
 					<a href="javascript:;" @click="changed">没有账号</a>
 				</h3>
 				<component
@@ -18,13 +23,20 @@
 	</div>
 </template>
 <script>
+	import { mapGetters } from 'vuex'
 	import Login from '@/components/function/login'
 	import Register from '@/components/function/register'
 	export default {
+		name: 'home',
 		data () {
 			return {
 				currentView: 'Login'
 			}
+		},
+		computed: {
+			...mapGetters([
+				'global_user'
+			])
 		},
 		components: {
 			Login,

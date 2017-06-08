@@ -12,6 +12,8 @@ Vue.use(ElementUI)
 // import bootstrap from 'bootstrap'
 // Vue.use(bootstrap)
 
+require('./config/http.js')
+
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
