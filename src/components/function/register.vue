@@ -55,9 +55,8 @@
 			submitForm (formName) {
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
-						axios.post('/register', this.register)
+						axios.post('/user/register', this.register)
 							.then(res => {
-								console.log(res.user)
 								this.$store.dispatch('toggleGlobalMessage', res)
 								this.$store.commit('GLOBAL_SET_USERINFO', res.data.user)
 							})

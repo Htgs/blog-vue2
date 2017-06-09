@@ -7,12 +7,14 @@ const state = {
 		code: null,
 		msg: null,
 		class: null
-	}
+	},
+	global_activeNav: '/home'
 }
 
 const getters = {
 	global_user: state => state.global_user,
-	global_message: state => state.global_message
+	global_message: state => state.global_message,
+	global_activeNav: state => state.global_activeNav
 }
 
 const actions = {
@@ -38,11 +40,18 @@ const mutations = {
 		state.global_message.class = null
 	},
 	[global.GLOBAL_SET_USERINFO] (state, user) {
-		console.log(user)
 		state.global_user = user
+	},
+	[global.GLOBAL_UPDATE_USERINFO] (state, setting) {
+		state.global_user.gender = setting.gender
+		state.global_user.avatar = setting.avatar
+		state.global_user.bio = setting.bio
 	},
 	[global.GLOBAL_RESET_USERINFO] (state) {
 		state.global_user = null
+	},
+	[global.GLOBAL_ACTIVENAV] (state, path) {
+		state.global_activeNav = path
 	}
 }
 

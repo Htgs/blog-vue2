@@ -3,14 +3,16 @@ import Router from 'vue-router'
 import Index from '@/views/index'
 import notFound from '@/views/404'
 import Home from '@/views/users/home'
+import User from '@/views/users/user'
 import Setting from '@/views/users/setting'
+import Password from '@/views/users/password'
 import Articles from '@/views/articles/articles'
 import Article from '@/views/articles/article'
 
 Vue.use(Router)
 
 export default new Router({
-	// mode: 'history',
+	mode: 'history',
 	routes: [
 		{
 			path: '/',
@@ -34,9 +36,19 @@ export default new Router({
 					component: Article
 				},
 				{
-					path: '/setting',
+					path: '/user/:username',
+					name: 'User',
+					component: User
+				},
+				{
+					path: '/user/:username/setting',
 					name: 'Setting',
 					component: Setting
+				},
+				{
+					path: '/user/:username/password',
+					name: 'Password',
+					component: Password
 				}
 			]
 		},

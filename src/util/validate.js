@@ -13,6 +13,8 @@ exports.password = (rule, value, callback) => {
 	}
 }
 exports.repassword = (rule, value, callback) => {
+	console.log(rule)
+	console.log(value)
 	if (String.trim(value).length > 20 || String.trim(value).length < 6) {
 		callback(new Error('密码长度为6~20'))
 	}

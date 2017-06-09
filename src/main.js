@@ -17,9 +17,14 @@ require('./config/http.js')
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
-new Vue({
-	el: '#app',
+// new Vue({
+// 	el: '#app',
+// 	router,
+// 	store,
+// 	render: h => h(App)
+// })
+const app = new Vue({
 	router,
 	store,
 	render: h => h(App)
-})
+}).$mount('#app')

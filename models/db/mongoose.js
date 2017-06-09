@@ -13,7 +13,7 @@ const Schema = mongoose.Schema
 const UserSchema = new Schema({
 	name: String,
 	password: String,
-	avater: { type: String, default: null },
+	avatar: { type: String, default: null },
 	gender: { type: Number, default: 0 }, // 0保密，1男，2女
 	bio: { type: String, default: null },
 	created_at: { type: Date, default: Date.now },

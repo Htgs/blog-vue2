@@ -17,6 +17,7 @@ module.exports = {
       'axios',
       'jquery',
       'lodash',
+      'vue'
     ]
   },
   output: {
@@ -84,6 +85,9 @@ module.exports = {
 
       axios: 'axios',
       'window.axios': 'axios',
+
+      Vue: 'vue',
+      'window.vue': 'vue'
     })
   ]
 }

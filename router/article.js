@@ -4,14 +4,14 @@ const marked = require('marked')
 const express = require('express')
 const router = express.Router()
 
-const Article = require('../models/article')
-const Comment = require('../models/comment')
-const checkLogin = require('../middlewares/check.js').checkLogin
+const ArticleModel = require('../models/article')
+const CommentModel = require('../models/comment')
+// const checkLogin = require('../middlewares/check.js').checkLogin
 
 // 请求文章页
-router.get('/', checkLogin, (req, res, next) => {
+router.get('/', (req, res, next) => {
 	let query = req.query.author
-	Article.getArticles(query)
+	ArticleModel.getArticles(query)
 		.then(function (result) {
 			let articles = result
 			articles.forEach(function (item) {
@@ -34,19 +34,8 @@ router.get('/', checkLogin, (req, res, next) => {
 		.catch(next)
 })
 
-// 请求发表文章页
-// router.get('/create', checkLogin, (req, res, next) => {
-// 	res.render('create', {
-// 		article: {
-// 			url: './',
-// 			title: '',
-// 			content: null
-// 		}
-// 	})
-// })
-
 // 提交请求发表文章
-router.post('/', checkLogin, (req, res, next) => {
+router.post('/add', (req, res, next) => {
 	let author = req.session.user._id
 	let title = req.fields.title
 	let content = req.fields.content
@@ -70,7 +59,7 @@ router.post('/', checkLogin, (req, res, next) => {
 		content: content,
 	}
 
-	Article.create(article)
+	ArticleModel.create(article)
 		.then(function (result) {
 			article = result
 			req.flash('success', '发表成功')
@@ -83,10 +72,10 @@ router.post('/', checkLogin, (req, res, next) => {
 router.get('/:articleId', (req, res, next) => {
 	let articleId = req.params.articleId
 	Promise.all([
-		Article.getArticleById(articleId),
-		Comment.getCommentsByArticleId(articleId),
-		Comment.getCommentsCountByArticleId(articleId),
-		Article.incPv(articleId)
+		ArticleModel.getArticleById(articleId),
+		CommentModel.getCommentsByArticleId(articleId),
+		CommentModel.getCommentsCountByArticleId(articleId),
+		ArticleModel.incPv(articleId)
 	])
 	.then(function (result) {
 		let article = result[0]
@@ -108,10 +97,10 @@ router.get('/:articleId', (req, res, next) => {
 })
 
 // 修改文章页
-router.get('/:articleId/edit', checkLogin, (req, res, next) => {
+router.get('/:articleId/edit', (req, res, next) => {
 	let articleId = req.params.articleId
 	let author = req.session.user._id
-	Article.getRawArticleById(articleId)
+	ArticleModel.getRawArticleById(articleId)
 		.then(function (result) {
 			let article = result
 			if (!article) {
@@ -129,12 +118,12 @@ router.get('/:articleId/edit', checkLogin, (req, res, next) => {
 })
 
 // 修改文章
-router.post('/:articleId/edit', checkLogin, (req, res, next) => {
+router.put('/:articleId/edit', (req, res, next) => {
 	let articleId = req.params.articleId
 	let author = req.session.user._id
 	let title = req.fields.title
 	let content = req.fields.content
-	Article.updateArticleById(articleId, author, { title: title, content: content, changed_at: Date.now() })
+	ArticleModel.updateArticleById(articleId, author, { title: title, content: content, changed_at: Date.now() })
 		.then(function (result) {
 			req.flash('success', '保存成功')
 			res.redirect(`/article/${articleId}`)
@@ -143,10 +132,10 @@ router.post('/:articleId/edit', checkLogin, (req, res, next) => {
 })
 
 // 删除文章
-router.get('/:articleId/delete', checkLogin, (req, res, next) => { 
+router.delete('/:articleId', (req, res, next) => { 
 	let articleId = req.params.articleId
 	let author = req.session.user._id
-	Article.deleteArticleById(articleId, author)
+	ArticleModel.deleteArticleById(articleId, author)
 		.then(function (result) {
 			req.flash('success', '删除成功')
 			res.redirect(`/article`)
@@ -155,7 +144,7 @@ router.get('/:articleId/delete', checkLogin, (req, res, next) => {
 })
 
 // 发表留言
-router.post('/:articleId/comment', checkLogin, (req, res, next) => {
+router.post('/:articleId/comment', (req, res, next) => {
 	let author = req.session.user._id
 	let articleId = req.params.articleId
 	let content = req.fields.content
@@ -164,7 +153,7 @@ router.post('/:articleId/comment', checkLogin, (req, res, next) => {
 		articleId: articleId,
 		content: content
 	}
-	Comment.create(comment)
+	CommentModel.create(comment)
 		.then(function (result) {
 			comment = result
 			req.flash('success', '评论成功')
@@ -173,10 +162,10 @@ router.post('/:articleId/comment', checkLogin, (req, res, next) => {
 		.catch(next)
 })
 
-router.get('/:articleId/comment/:commentId/delete', checkLogin, (req, res, next) => {
+router.delete('/:articleId/comment/:commentId', (req, res, next) => {
 	let commentId = req.params.commentId
 	let author = req.session.user._id
-	Comment.deleteCommentsById(commentId, author)
+	CommentModel.deleteCommentsById(commentId, author)
 		.then(function (result){
 			req.flash('success', '删除留言成功')
 			res.redirect('back')

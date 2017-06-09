@@ -11,19 +11,11 @@
 					<el-radio :label="2">女</el-radio>
 				</el-radio-group>
 			</el-form-item>
-			<el-form-item 
-				label="头像上传" 
-				prop="avater" 
-				>
-				<input type="file" placeholder="请输入介绍">
-				<!-- <el-upload
-					class="avatar-uploader"
-					:action="'/static/uploads'"
-					:show-file-list="false"
-					:auto-upload="false">
-					<img v-if="imageUrl" :src="imageUrl" class="avatar">
-					<i v-else class="el-icon-plus avatar-uploader-icon"></i>
-				</el-upload> -->
+			<el-form-item label="头像上传">
+				<img v-if="imgUrl" :src="imgUrl" class="avatar">
+				<el-button v-if="imgUrl" type="primary" @click="clearFile">删除图片</el-button>
+				<label v-else for="avatar" class="el-icon-plus avatar-uploader"></label>
+				<input type="file" id="avatar" @change="fileChange" class="hidden inp-file" accept="image/jpeg,image/jpg,image/png">
 			</el-form-item>
 			<el-form-item 
 				label="自我介绍" 
@@ -42,28 +34,78 @@
 <script>
 	import { mapGetters } from 'vuex'
 	import validate from '../../util/validate.js'
+	import util from '../../util/util.js'
 	export default {
 		name: 'setting',
-		data () {
-			return {
-				setting: {
-					// gender: this.global_user.gender,
-					gender: 0,
-					avater: null,
-					bio: ''
-				}
-			}
-		},
 		computed: {
 			...mapGetters([
 				'global_user'
 			])
 		},
+		data () {
+			return {
+				setting: {
+					gender: 0,
+					avatar: null,
+					bio: ''
+				},
+				imgUrl: null
+			}
+		},
+		beforeRouteEnter (to, from, next) {
+			axios.get(to.path)
+				.then(res => {
+					next(vm => {
+						vm.setting.gender = res.data.gender
+						vm.setting.bio = res.data.bio
+						vm.imgUrl = util.$img(res.data.avatar)
+					})
+				})
+				.catch(err => {
+					next(vm => {
+						console.log(err)
+					})
+				})
+		},
 		methods: {
+			fileChange () {
+				let file = document.querySelector('#avatar').files[0]
+				if (file.size / 1024 > 200) {
+					this.$store.dispatch('toggleGlobalMessage', {data: { msg: '图片太大' }, code: '', type: 'warning'})
+					return
+				}
+				if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+					this.$store.dispatch('toggleGlobalMessage', {data: { msg: '图片格式只支持png和jpg' }, code: '', type: 'warning'})
+					return
+				}
+				let fr = new FileReader()
+				fr.onload = (e) => {
+					this.imgUrl = e.target.result
+					this.setting.avatar = file
+				}
+				fr.readAsDataURL(file)
+			},
+			clearFile () {
+				this.imgUrl = null
+				this.setting.avatar = null
+			},
 			submitForm (formName) {
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
-						console.log('success submit!!')
+						let fd = new FormData()
+						fd.append('gender', this.setting.gender)
+						fd.append('avatar', this.setting.avatar)
+						fd.append('bio', this.setting.bio)
+						axios.post('/user/' + this.global_user.name + '/setting', fd, {headers: {'Content-Type': 'multipart/form-data'}})
+							.then(res => {
+								this.$store.dispatch('toggleGlobalMessage', res)
+								this.$router.push('/home')
+								this.$store.commit('GLOBAL_ACTIVENAV', '/home')
+								this.$store.commit('GLOBAL_UPDATE_USERINFO', res.data.res)
+							})
+							.catch(err => {
+								this.$store.dispatch('toggleGlobalMessage', err)
+							})
 					} else {
 						console.log('error submit!!')
 						return false
@@ -85,27 +127,21 @@
 			font: normal 18px/3 bold;
 			border-radius: 3px;
 		}
-		.avatar-uploader .el-upload {
-			border: 1px dashed #d9d9d9;
-			border-radius: 6px;
-			cursor: pointer;
-			position: relative;
-			overflow: hidden;
-		}
-		.avatar-uploader .el-upload:hover {
+		.avatar-uploader:hover {0 
 			border-color: #20a0ff;
 		}
-		.avatar-uploader-icon {
+		.avatar-uploader {
 			font-size: 28px;
 			color: #8c939d;
-			width: 178px;
-			height: 178px;
-			line-height: 178px;
+			width: 200px;
+			height: 200px;
+			line-height: 200px;
 			text-align: center;
+			border: 1px dashed #d9d9d9;
 		}
 		.avatar {
-			width: 178px;
-			height: 178px;
+			width: 200px;
+			height: 200px;
 			display: block;
 		}
 	}
